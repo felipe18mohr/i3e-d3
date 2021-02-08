@@ -30,9 +30,9 @@
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/Joy.h>
 
-class TeleopD3{
+class JoyTeleopD3{
 public:
-    TeleopD3();
+    JoyTeleopD3();
     void moveD3();
     
 private:
@@ -58,7 +58,7 @@ private:
 
 };
 
-TeleopD3::TeleopD3(): linear_(1), angular_(0){
+JoyTeleopD3::JoyTeleopD3(): linear_(1), angular_(0){
 
     nh_.param("axis_linear", linear_, linear_);
     nh_.param("axis_angular", angular_, angular_);
@@ -77,14 +77,14 @@ TeleopD3::TeleopD3(): linear_(1), angular_(0){
     locked_ = true;
 
     vel_pub_ = nh_.advertise<geometry_msgs::Twist>("joy_teleop/cmd_vel", 1);
-    joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TeleopD3::joyCallback, this);
+    joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &JoyTeleopD3::joyCallback, this);
     
     head_joint_pub_ = nh_.advertise<std_msgs::Float64>("joint_head_position/command", 1);
     neck_joint_pub_ = nh_.advertise<std_msgs::Float64>("joint_neck_position/command", 1);
 
 }
 
-void TeleopD3::joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
+void JoyTeleopD3::joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 
     if(joy->buttons[reverse_]) rev_ = !rev_;
     if(joy->buttons[lock_head_]) locked_ = !locked_;
@@ -106,7 +106,7 @@ void TeleopD3::joyCallback(const sensor_msgs::Joy::ConstPtr& joy){
 
 }
 
-void TeleopD3::moveD3(){    
+void JoyTeleopD3::moveD3(){    
     vel_pub_.publish(twist_);
     neck_joint_pub_.publish(neck_cmd_);
     head_joint_pub_.publish(head_cmd_);
@@ -116,7 +116,7 @@ void TeleopD3::moveD3(){
 int main(int argc, char *argv[]){
     
     ros::init(argc, argv, "/teleop_i3e_d3");
-    TeleopD3 teleop_d3;
+    JoyTeleopD3 teleop_d3;
 
     ros::Rate loop_rate(10);
     while (ros::ok()){
